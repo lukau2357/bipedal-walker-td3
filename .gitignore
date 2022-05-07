@@ -1,0 +1,5 @@
+**/__pycache__
+# Reward history
+**/history
+# Model weights, too big for a GitHub repository
+**/saved
