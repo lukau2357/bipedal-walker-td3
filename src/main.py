@@ -54,9 +54,10 @@ def train(trials = 1, suffix = "", periodicSaving = False, period = 100):
         if path.exists(csvName):
             fileData = list(csv.reader(open(csvName)))
             lastLine = fileData[-2]
-            numEpisode = int(lastLine[0])
+            numEpisode = int(lastLine[0]) + 1
             runningReward = float(lastLine[2])
-
+            
+        print(f"Trial num: {trial}, last episode: {numEpisode}")
         while numEpisode < episode_limit:
             done = False
             total = 0
@@ -108,7 +109,7 @@ def train(trials = 1, suffix = "", periodicSaving = False, period = 100):
 
             numEpisode += 1
 
-def evaluate_model(index, env_suffix = "", trials = 3):
+def evaluate_model(index, cycleNum=-1, env_suffix = "", trials = 1):
     """
     Test the learned agent. Actions are drawn using the learned deterministic policy!
     Parameters:
@@ -120,7 +121,7 @@ def evaluate_model(index, env_suffix = "", trials = 3):
 
     env = gym.make(envName)
     env.name = "{}{}_{}".format("BipedalWalker-v3", env_suffix, str(index))
-    agent = Agent(env, learningRate, gamma, tau)
+    agent = Agent(env, learningRate, gamma, tau, cycleNum=cycleNum)
 
     for i in range(trials):
         state = env.reset()
@@ -134,6 +135,9 @@ def evaluate_model(index, env_suffix = "", trials = 3):
             nextState, reward, env_done, info = env.step(action)
             state = nextState
             done = env_done
+    
+    env.close()
 
-# train(64, periodicSaving = True, period = 100)
-evaluate_model(0)
+# train(15, periodicSaving = True, period = 100)
+agent_number = 0
+evaluate_model(agent_number, 0)

@@ -11,43 +11,44 @@ from Network import Network
 class Agent():
     def __init__(
         self, env: Env, learningRate: float, gamma: float, tau: float,
-        shouldLoad: bool=True, saveFolder: str='saved'
+        shouldLoad: bool=True, saveFolder: str='saved', cycleNum: int=-1
     ):
         self.observationDim = env.observation_space.shape[0]
         self.actionDim = env.action_space.shape[0]
         self.gamma = gamma
         self.tau = tau
+        self.cycleNum = cycleNum
         # check if the saveFolder path exists
         if not os.path.isdir(saveFolder):
             os.mkdir(saveFolder)
-        self.envName = os.path.join(saveFolder, env.name + '.')
+        self.envName = os.path.join(saveFolder, env.name)
         name = self.envName
+        pathExtension = f"_{cycleNum}" if cycleNum >= 0 else ""
         
         self.device = T.device("cuda" if T.cuda.is_available() else 'cpu')
-
-        self.buffer = pickle.load(open(name + 'Replay', 'rb'))\
-            if shouldLoad and os.path.exists(name + 'Replay') else Buffer(
+        self.buffer = pickle.load(open(f"{name}.Replay{pathExtension}", 'rb'))\
+            if shouldLoad and os.path.exists(f"{name}.Replay{pathExtension}") else Buffer(
                 self.observationDim, self.actionDim
             )
         # initialize the actor and critics
-        self.actor = pickle.load(open(name + 'Actor', 'rb'))\
-            if shouldLoad and os.path.exists(name + 'Actor') else Network(
+        self.actor = pickle.load(open(f"{name}.Actor{pathExtension}", 'rb'))\
+            if shouldLoad and os.path.exists(f"{name}.Actor{pathExtension}") else Network(
                 [self.observationDim, 400, 300, self.actionDim],
                 nn.Tanh,
                 learningRate,
                 self.device
             )
             
-        self.critic1 = pickle.load(open(name + 'Critic1', 'rb'))\
-            if shouldLoad and os.path.exists(name + 'Critic1') else Network(
+        self.critic1 = pickle.load(open(f"{name}.Critic1{pathExtension}", 'rb'))\
+            if shouldLoad and os.path.exists(f"{name}.Critic1{pathExtension}") else Network(
                 [self.observationDim + self.actionDim, 400, 300, 1],
                 nn.Identity,
                 learningRate,
                 self.device
             )
         
-        self.critic2 = pickle.load(open(name + 'Critic2', 'rb'))\
-            if shouldLoad and os.path.exists(name + 'Critic2') else Network(
+        self.critic2 = pickle.load(open(f"{name}.Critic2{pathExtension}", 'rb'))\
+            if shouldLoad and os.path.exists(f"{name}.Critic2{pathExtension}") else Network(
                 [self.observationDim + self.actionDim, 400, 300, 1],
                 nn.Identity,
                 learningRate,
@@ -55,16 +56,16 @@ class Agent():
             )
 
         # create target networks
-        self.targetActor = pickle.load(open(name + 'TargetActor', 'rb'))\
-            if shouldLoad and os.path.exists(name + 'TargetActor') else\
+        self.targetActor = pickle.load(open(f"{name}.TargetActor{pathExtension}", 'rb'))\
+            if shouldLoad and os.path.exists(f"{name}.TargetActor{pathExtension}") else\
             deepcopy(self.actor)
 
-        self.targetCritic1 = pickle.load(open(name + 'TargetCritic1', 'rb'))\
-            if shouldLoad and os.path.exists(name + 'TargetCritic1') else\
+        self.targetCritic1 = pickle.load(open(f"{name}.TargetCritic1{pathExtension}", 'rb'))\
+            if shouldLoad and os.path.exists(f"{name}.TargetCritic1{pathExtension}") else\
             deepcopy(self.critic1)
 
-        self.targetCritic2 = pickle.load(open(name + 'TargetCritic2', 'rb'))\
-            if shouldLoad and os.path.exists(name + 'TargetCritic2') else\
+        self.targetCritic2 = pickle.load(open(f"{name}.TargetCritic2{pathExtension}", 'rb'))\
+            if shouldLoad and os.path.exists(f"{name}.TargetCritic2{pathExtension}") else\
             deepcopy(self.critic2)
 
     def getNoisyAction(self, state: np.ndarray, sigma: float) -> np.ndarray:
