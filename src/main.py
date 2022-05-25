@@ -20,7 +20,7 @@ miniBatchSize = 100  # how large a mini-batch should be when updating
 policyDelay = 2      # how many steps to wait before updating the policy
 resume = True        # resume from previous checkpoint if possible?
 render = False       # render out the environment?
-episode_limit = 550  # limiting the number of episodes, including pretrained episodes
+episode_limit = 20  # limiting the number of episodes, including pretrained episodes
 
 envName = "BipedalWalker-v3"
 
@@ -54,7 +54,7 @@ def train(trials = 1, suffix = "", periodicSaving = False, period = 100):
         if path.exists(csvName):
             fileData = list(csv.reader(open(csvName)))
             lastLine = fileData[-2]
-            numEpisode = int(lastLine[0])
+            numEpisode = int(lastLine[0]) + 1
             runningReward = float(lastLine[2])
 
         while numEpisode < episode_limit:
@@ -135,5 +135,5 @@ def evaluate_model(index, env_suffix = "", trials = 3):
             state = nextState
             done = env_done
 
-# train(64, periodicSaving = True, period = 100)
-evaluate_model(0)
+train(3, periodicSaving = True, period = 100)
+# evaluate_model(0)
