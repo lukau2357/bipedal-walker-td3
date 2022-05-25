@@ -20,7 +20,7 @@ miniBatchSize = 100  # how large a mini-batch should be when updating
 policyDelay = 2      # how many steps to wait before updating the policy
 resume = True        # resume from previous checkpoint if possible?
 render = False       # render out the environment?
-episode_limit = 550  # limiting the number of episodes, including pretrained episodes
+episode_limit = 20  # limiting the number of episodes, including pretrained episodes
 
 envName = "BipedalWalker-v3"
 
